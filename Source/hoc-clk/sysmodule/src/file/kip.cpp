@@ -54,7 +54,7 @@ namespace kip {
         }
 
         u32 custRev    = cust_get_cust_rev(&table);
-        u32 kipVersion = cust_get_kip_version(&table)
+        u32 kipVersion = cust_get_kip_version(&table);
         if (custRev < CUST_REV || kipVersion < KIP_VERSION) {
             notification::writeNotification("Horizon OC\nOutdated kip detected!\nPlease update Horizon OC");
             fileUtils::LogLine("Cust revision: %u", custRev);
@@ -77,6 +77,11 @@ namespace kip {
         CUST_WRITE_FIELD_BATCH(&table, marikoEmcMaxClock, config::GetConfigValue(KipConfigValue_marikoEmcMaxClock));
         CUST_WRITE_FIELD_BATCH(&table, marikoEmcVddqVolt, config::GetConfigValue(KipConfigValue_marikoEmcVddqVolt));
         CUST_WRITE_FIELD_BATCH(&table, emcDvbShift, config::GetConfigValue(KipConfigValue_emcDvbShift));
+
+        for (u32 i = 0; i < 28; i++) {
+            table.marikoSocVoltArray[i] = config::GetConfigValue((HocClkConfigValue)(KipConfigValue_s_volt_1666000 + i));
+        }
+
         CUST_WRITE_FIELD_BATCH(&table, marikoSocVmax, config::GetConfigValue(KipConfigValue_marikoSocVmax));
 
         CUST_WRITE_FIELD_BATCH(&table, t1_tRCD, config::GetConfigValue(KipConfigValue_t1_tRCD));
@@ -210,7 +215,7 @@ namespace kip {
         clockManager::gContext.custRev    = cust_get_cust_rev(&table);
 
         u32 custRev    = cust_get_cust_rev(&table);
-        u32 kipVersion = cust_get_kip_version(&table)
+        u32 kipVersion = cust_get_kip_version(&table);
         if (custRev < CUST_REV || kipVersion < KIP_VERSION) {
             notification::writeNotification("Horizon OC\nOutdated kip detected!\nPlease update Horizon OC");
             fileUtils::LogLine("Cust revision: %u", custRev);
@@ -293,6 +298,10 @@ namespace kip {
 
         for (int i = 0; i < 27; i++) {
             configValues.values[KipConfigValue_g_volt_e_76800 + i] = cust_get_erista_gpu_volt(&table, i);
+        }
+
+        for (u32 i = 0; i < 28; i++) {
+            configValues.values[KipConfigValue_s_volt_1666000 + i] = cust_get_mariko_soc_volt(&table, i);
         }
 
         configValues.values[KipConfigValue_t7_tWTR_fine_tune] = cust_get_tWTR_fine_tune(&table);

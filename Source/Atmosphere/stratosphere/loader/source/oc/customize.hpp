@@ -20,7 +20,7 @@
 
 #pragma once
 
-#define CUST_REV 2
+#define CUST_REV 3
 #define KIP_VERSION 220
 
 #include "oc_common.hpp"
@@ -93,6 +93,7 @@ struct CustomizeTable {
     u32 marikoEmcMaxClock;
     u32 marikoEmcVddqVolt;
     u32 emcDvbShift;
+    u32 marikoSocVoltArray[pcv::DvfsTableEntryLimit - 3]; /* Don't overwrite default tables. */
     u32 marikoSocVmax;
     // advanced config
     u32 t1_tRCD;

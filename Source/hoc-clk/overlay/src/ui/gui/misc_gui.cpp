@@ -57,6 +57,7 @@ class SafetySubMenuGui;
 class RamSubmenuGui;
 class RamTimingsSubmenuGui;
 class RamLatenciesSubmenuGui;
+class SocCustomTableSubmenuGui;
 class CpuSubmenuGui;
 class GpuSubmenuGui;
 class GpuCustomTableSubmenuGui;
@@ -615,7 +616,7 @@ protected:
             false
 
         );
-        
+
         addConfigButton(
             HocClkConfigValue_PollingIntervalMs,
             "Polling Interval",
@@ -932,8 +933,8 @@ protected:
 
 
         this->listElement->addItem(new tsl::elm::CategoryHeader("RAM Settings"));
-        
-        addConfigTrackbar(KipConfigValue_emcDvbShift,  "SoC DVB Shift",  ValueRange(0, 16, 1)); // yes, DVB 16 is nessesary
+
+        addConfigTrackbar(KipConfigValue_emcDvbShift, "SoC DVB Shift",  ValueRange(0, 16, 1)); // yes, DVB 16 is nessesary
         if(IsMariko()) {
             u32 socSpeedo = this->context->speedos[HocClkSpeedo_SOC];
             std::string autoText = "1000 mV";
@@ -971,7 +972,7 @@ protected:
                 true
             );
         }
-        
+
         addConfigToggle(KipConfigValue_hpMode, "HP Mode", true);
 
         std::map<uint32_t, std::string> emc_voltage_label = {
@@ -1124,6 +1125,18 @@ protected:
         timingsSubmenu->setValue(R_ARROW);
         this->listElement->addItem(timingsSubmenu);
 
+        if (IsMariko()) {
+            tsl::elm::ListItem *customSocTableSubmenu = new tsl::elm::ListItem("SOC Voltage Table");
+            customSocTableSubmenu->setClickListener([](u64 keys) {
+                if (keys & HidNpadButton_A) {
+                    tsl::changeTo<SocCustomTableSubmenuGui>();
+                    return true;
+                }
+                return false;
+            });
+            customSocTableSubmenu->setValue(R_ARROW);
+            this->listElement->addItem(customSocTableSubmenu);
+        }
     }
 };
 
@@ -1483,6 +1496,66 @@ protected:
     }
 };
 
+class SocCustomTableSubmenuGui : public MiscGui {
+public:
+    SocCustomTableSubmenuGui() { }
+
+protected:
+    void listUI() override {
+
+        Result rc = hocclkIpcGetConfigValues(this->configList); // populate config list early otherwise wont work
+        if (R_FAILED(rc)) [[unlikely]] {
+            FatalGui::openWithResultCode("hocclkIpcGetConfigValues", rc);
+            return;
+        }
+
+        this->listElement->addItem(new tsl::elm::CategoryHeader("SOC Custom Table (mV)"));
+
+        ValueThresholds socVmaxThresholds(1075, 1150);
+
+        std::vector<NamedValue> socVolts = {
+            NamedValue("No Override", 0),
+            NamedValue("650mV",   650), NamedValue("675mV",   675), NamedValue("700mV",   700),
+            NamedValue("725mV",   725), NamedValue("750mV",   750), NamedValue("775mV",   775),
+            NamedValue("800mV",   800), NamedValue("825mV",   825), NamedValue("850mV",   850),
+            NamedValue("875mV",   875), NamedValue("900mV",   900), NamedValue("925mV",   925),
+            NamedValue("950mV",   950), NamedValue("975mV",   975), NamedValue("1000mV", 1000),
+            NamedValue("1025mV", 1025), NamedValue("1050mV", 1050), NamedValue("1075mV", 1075),
+            NamedValue("1100mV", 1100), NamedValue("1125mV", 1125), NamedValue("1150mV", 1150),
+            NamedValue("1175mV", 1175), NamedValue("1200mV", 1200),
+        };
+
+        addConfigButton(KipConfigValue_s_volt_1666000, "1666MHz", ValueRange(0, 0, 0, "0", 1), "Voltage", &socVmaxThresholds, {}, socVolts, false, true);
+        addConfigButton(KipConfigValue_s_volt_1733000, "1733MHz", ValueRange(0, 0, 0, "0", 1), "Voltage", &socVmaxThresholds, {}, socVolts, false, true);
+        addConfigButton(KipConfigValue_s_volt_1800000, "1800MHz", ValueRange(0, 0, 0, "0", 1), "Voltage", &socVmaxThresholds, {}, socVolts, false, true);
+        addConfigButton(KipConfigValue_s_volt_1866000, "1866MHz", ValueRange(0, 0, 0, "0", 1), "Voltage", &socVmaxThresholds, {}, socVolts, false, true);
+        addConfigButton(KipConfigValue_s_volt_1933000, "1933MHz", ValueRange(0, 0, 0, "0", 1), "Voltage", &socVmaxThresholds, {}, socVolts, false, true);
+        addConfigButton(KipConfigValue_s_volt_2000000, "2000MHz", ValueRange(0, 0, 0, "0", 1), "Voltage", &socVmaxThresholds, {}, socVolts, false, true);
+        addConfigButton(KipConfigValue_s_volt_2066000, "2066MHz", ValueRange(0, 0, 0, "0", 1), "Voltage", &socVmaxThresholds, {}, socVolts, false, true);
+        addConfigButton(KipConfigValue_s_volt_2133000, "2133MHz", ValueRange(0, 0, 0, "0", 1), "Voltage", &socVmaxThresholds, {}, socVolts, false, true);
+        addConfigButton(KipConfigValue_s_volt_2200000, "2200MHz", ValueRange(0, 0, 0, "0", 1), "Voltage", &socVmaxThresholds, {}, socVolts, false, true);
+        addConfigButton(KipConfigValue_s_volt_2266000, "2266MHz", ValueRange(0, 0, 0, "0", 1), "Voltage", &socVmaxThresholds, {}, socVolts, false, true);
+        addConfigButton(KipConfigValue_s_volt_2333000, "2333MHz", ValueRange(0, 0, 0, "0", 1), "Voltage", &socVmaxThresholds, {}, socVolts, false, true);
+        addConfigButton(KipConfigValue_s_volt_2400000, "2400MHz", ValueRange(0, 0, 0, "0", 1), "Voltage", &socVmaxThresholds, {}, socVolts, false, true);
+        addConfigButton(KipConfigValue_s_volt_2466000, "2466MHz", ValueRange(0, 0, 0, "0", 1), "Voltage", &socVmaxThresholds, {}, socVolts, false, true);
+        addConfigButton(KipConfigValue_s_volt_2533000, "2533MHz", ValueRange(0, 0, 0, "0", 1), "Voltage", &socVmaxThresholds, {}, socVolts, false, true);
+        addConfigButton(KipConfigValue_s_volt_2600000, "2600MHz", ValueRange(0, 0, 0, "0", 1), "Voltage", &socVmaxThresholds, {}, socVolts, false, true);
+        addConfigButton(KipConfigValue_s_volt_2666000, "2666MHz", ValueRange(0, 0, 0, "0", 1), "Voltage", &socVmaxThresholds, {}, socVolts, false, true);
+        addConfigButton(KipConfigValue_s_volt_2733000, "2733MHz", ValueRange(0, 0, 0, "0", 1), "Voltage", &socVmaxThresholds, {}, socVolts, false, true);
+        addConfigButton(KipConfigValue_s_volt_2800000, "2800MHz", ValueRange(0, 0, 0, "0", 1), "Voltage", &socVmaxThresholds, {}, socVolts, false, true);
+        addConfigButton(KipConfigValue_s_volt_2866000, "2866MHz", ValueRange(0, 0, 0, "0", 1), "Voltage", &socVmaxThresholds, {}, socVolts, false, true);
+        addConfigButton(KipConfigValue_s_volt_2933000, "2933MHz", ValueRange(0, 0, 0, "0", 1), "Voltage", &socVmaxThresholds, {}, socVolts, false, true);
+        addConfigButton(KipConfigValue_s_volt_3000000, "3000MHz", ValueRange(0, 0, 0, "0", 1), "Voltage", &socVmaxThresholds, {}, socVolts, false, true);
+        addConfigButton(KipConfigValue_s_volt_3066000, "3066MHz", ValueRange(0, 0, 0, "0", 1), "Voltage", &socVmaxThresholds, {}, socVolts, false, true);
+        addConfigButton(KipConfigValue_s_volt_3133000, "3133MHz", ValueRange(0, 0, 0, "0", 1), "Voltage", &socVmaxThresholds, {}, socVolts, false, true);
+        addConfigButton(KipConfigValue_s_volt_3200000, "3200MHz", ValueRange(0, 0, 0, "0", 1), "Voltage", &socVmaxThresholds, {}, socVolts, false, true);
+        addConfigButton(KipConfigValue_s_volt_3266000, "3266MHz", ValueRange(0, 0, 0, "0", 1), "Voltage", &socVmaxThresholds, {}, socVolts, false, true);
+        addConfigButton(KipConfigValue_s_volt_3333000, "3333MHz", ValueRange(0, 0, 0, "0", 1), "Voltage", &socVmaxThresholds, {}, socVolts, false, true);
+        addConfigButton(KipConfigValue_s_volt_3400000, "3400MHz", ValueRange(0, 0, 0, "0", 1), "Voltage", &socVmaxThresholds, {}, socVolts, false, true);
+        addConfigButton(KipConfigValue_s_volt_3466000, "3466MHz", ValueRange(0, 0, 0, "0", 1), "Voltage", &socVmaxThresholds, {}, socVolts, false, true);
+    }
+};
+
 class CpuSubmenuGui : public MiscGui {
 public:
     CpuSubmenuGui() { }
@@ -1563,7 +1636,7 @@ protected:
                 true
             );
 
-            
+
             std::vector<NamedValue> maxClkOptions = {
                 NamedValue("1963 MHz", 1963500),
                 NamedValue("2091 MHz", 2091000),

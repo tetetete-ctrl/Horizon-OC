@@ -30,7 +30,7 @@ LIBNAMES	:=	minIni
 # major minor patch
 TARGET_VERSION	:= 2.2.0
 KIP_VERSION :=  220
-CUST_REV    :=  2
+CUST_REV    :=  3
 
 #---------------------------------------------------------------------------------
 # options for code generation

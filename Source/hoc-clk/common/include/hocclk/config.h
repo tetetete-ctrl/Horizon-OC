@@ -90,6 +90,35 @@ typedef enum {
     KipConfigValue_emcDvbShift,
     KipConfigValue_marikoSocVmax,
 
+    KipConfigValue_s_volt_1666000,
+    KipConfigValue_s_volt_1733000,
+    KipConfigValue_s_volt_1800000,
+    KipConfigValue_s_volt_1866000,
+    KipConfigValue_s_volt_1933000,
+    KipConfigValue_s_volt_2000000,
+    KipConfigValue_s_volt_2066000,
+    KipConfigValue_s_volt_2133000,
+    KipConfigValue_s_volt_2200000,
+    KipConfigValue_s_volt_2266000,
+    KipConfigValue_s_volt_2333000,
+    KipConfigValue_s_volt_2400000,
+    KipConfigValue_s_volt_2466000,
+    KipConfigValue_s_volt_2533000,
+    KipConfigValue_s_volt_2600000,
+    KipConfigValue_s_volt_2666000,
+    KipConfigValue_s_volt_2733000,
+    KipConfigValue_s_volt_2800000,
+    KipConfigValue_s_volt_2866000,
+    KipConfigValue_s_volt_2933000,
+    KipConfigValue_s_volt_3000000,
+    KipConfigValue_s_volt_3066000,
+    KipConfigValue_s_volt_3133000,
+    KipConfigValue_s_volt_3200000,
+    KipConfigValue_s_volt_3266000,
+    KipConfigValue_s_volt_3333000,
+    KipConfigValue_s_volt_3400000,
+    KipConfigValue_s_volt_3466000,
+
     KipConfigValue_t1_tRCD,
     KipConfigValue_t2_tRP,
     KipConfigValue_t3_tRAS,
@@ -317,6 +346,36 @@ static inline const char* hocclkFormatConfigValue(HocClkConfigValue val, bool pr
             return pretty ? "Mariko EMC VDDQ Voltage" : "mariko_emc_vddq_volt";
         case KipConfigValue_emcDvbShift:
             return pretty ? "EMC DVB Shift" : "emc_dvb_shift";
+
+        case KipConfigValue_s_volt_1666000: return pretty ? "Mariko Soc Volt 1666 MHz" : "s_volt_1666000";
+        case KipConfigValue_s_volt_1733000: return pretty ? "Mariko Soc Volt 1733 MHz" : "s_volt_1733000";
+        case KipConfigValue_s_volt_1800000: return pretty ? "Mariko Soc Volt 1800 MHz" : "s_volt_1800000";
+        case KipConfigValue_s_volt_1866000: return pretty ? "Mariko Soc Volt 1866 MHz" : "s_volt_1866000";
+        case KipConfigValue_s_volt_1933000: return pretty ? "Mariko Soc Volt 1933 MHz" : "s_volt_1933000";
+        case KipConfigValue_s_volt_2000000: return pretty ? "Mariko Soc Volt 2000 MHz" : "s_volt_2000000";
+        case KipConfigValue_s_volt_2066000: return pretty ? "Mariko Soc Volt 2066 MHz" : "s_volt_2066000";
+        case KipConfigValue_s_volt_2133000: return pretty ? "Mariko Soc Volt 2133 MHz" : "s_volt_2133000";
+        case KipConfigValue_s_volt_2200000: return pretty ? "Mariko Soc Volt 2200 MHz" : "s_volt_2200000";
+        case KipConfigValue_s_volt_2266000: return pretty ? "Mariko Soc Volt 2266 MHz" : "s_volt_2266000";
+        case KipConfigValue_s_volt_2333000: return pretty ? "Mariko Soc Volt 2333 MHz" : "s_volt_2333000";
+        case KipConfigValue_s_volt_2400000: return pretty ? "Mariko Soc Volt 2400 MHz" : "s_volt_2400000";
+        case KipConfigValue_s_volt_2466000: return pretty ? "Mariko Soc Volt 2466 MHz" : "s_volt_2466000";
+        case KipConfigValue_s_volt_2533000: return pretty ? "Mariko Soc Volt 2533 MHz" : "s_volt_2533000";
+        case KipConfigValue_s_volt_2600000: return pretty ? "Mariko Soc Volt 2600 MHz" : "s_volt_2600000";
+        case KipConfigValue_s_volt_2666000: return pretty ? "Mariko Soc Volt 2666 MHz" : "s_volt_2666000";
+        case KipConfigValue_s_volt_2733000: return pretty ? "Mariko Soc Volt 2733 MHz" : "s_volt_2733000";
+        case KipConfigValue_s_volt_2800000: return pretty ? "Mariko Soc Volt 2800 MHz" : "s_volt_2800000";
+        case KipConfigValue_s_volt_2866000: return pretty ? "Mariko Soc Volt 2866 MHz" : "s_volt_2866000";
+        case KipConfigValue_s_volt_2933000: return pretty ? "Mariko Soc Volt 2933 MHz" : "s_volt_2933000";
+        case KipConfigValue_s_volt_3000000: return pretty ? "Mariko Soc Volt 3000 MHz" : "s_volt_3000000";
+        case KipConfigValue_s_volt_3066000: return pretty ? "Mariko Soc Volt 3066 MHz" : "s_volt_3066000";
+        case KipConfigValue_s_volt_3133000: return pretty ? "Mariko Soc Volt 3133 MHz" : "s_volt_3133000";
+        case KipConfigValue_s_volt_3200000: return pretty ? "Mariko Soc Volt 3200 MHz" : "s_volt_3200000";
+        case KipConfigValue_s_volt_3266000: return pretty ? "Mariko Soc Volt 3266 MHz" : "s_volt_3266000";
+        case KipConfigValue_s_volt_3333000: return pretty ? "Mariko Soc Volt 3333 MHz" : "s_volt_3333000";
+        case KipConfigValue_s_volt_3400000: return pretty ? "Mariko Soc Volt 3400 MHz" : "s_volt_3400000";
+        case KipConfigValue_s_volt_3466000: return pretty ? "Mariko Soc Volt 3466 MHz" : "s_volt_3466000";
+
         case KipConfigValue_marikoSocVmax:
             return pretty ? "SOC Vmax" : "soc_vmax";
         // Memory timings
@@ -578,6 +637,34 @@ static inline uint64_t hocclkValidConfigValue(HocClkConfigValue val, uint64_t in
         case KipConfigValue_marikoEmcMaxClock:
         case KipConfigValue_marikoEmcVddqVolt:
         case KipConfigValue_emcDvbShift:
+        case KipConfigValue_s_volt_1666000:
+        case KipConfigValue_s_volt_1733000:
+        case KipConfigValue_s_volt_1800000:
+        case KipConfigValue_s_volt_1866000:
+        case KipConfigValue_s_volt_1933000:
+        case KipConfigValue_s_volt_2000000:
+        case KipConfigValue_s_volt_2066000:
+        case KipConfigValue_s_volt_2133000:
+        case KipConfigValue_s_volt_2200000:
+        case KipConfigValue_s_volt_2266000:
+        case KipConfigValue_s_volt_2333000:
+        case KipConfigValue_s_volt_2400000:
+        case KipConfigValue_s_volt_2466000:
+        case KipConfigValue_s_volt_2533000:
+        case KipConfigValue_s_volt_2600000:
+        case KipConfigValue_s_volt_2666000:
+        case KipConfigValue_s_volt_2733000:
+        case KipConfigValue_s_volt_2800000:
+        case KipConfigValue_s_volt_2866000:
+        case KipConfigValue_s_volt_2933000:
+        case KipConfigValue_s_volt_3000000:
+        case KipConfigValue_s_volt_3066000:
+        case KipConfigValue_s_volt_3133000:
+        case KipConfigValue_s_volt_3200000:
+        case KipConfigValue_s_volt_3266000:
+        case KipConfigValue_s_volt_3333000:
+        case KipConfigValue_s_volt_3400000:
+        case KipConfigValue_s_volt_3466000:
         case KipConfigValue_marikoSocVmax:
         case KipConfigValue_t1_tRCD:
         case KipConfigValue_t2_tRP:

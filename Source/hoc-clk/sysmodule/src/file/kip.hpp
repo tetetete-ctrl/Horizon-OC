@@ -44,6 +44,7 @@ namespace kip {
         u32 marikoEmcMaxClock;
         u32 marikoEmcVddqVolt;
         u32 emcDvbShift;
+        u32 marikoSocVoltArray[31 - 3]; /* LUT Limit - 3 stock entries. */
         u32 marikoSocVmax;
 
         // advanced config
@@ -287,6 +288,14 @@ namespace kip {
         return cust_write_table(p, &t);
     }
 
+    static inline bool cust_set_mariko_soc_volt(const char* p, int idx, u32 v) {
+        if (idx < 0 || idx >= 24) return false;
+        CustomizeTable t;
+        if (!cust_read_table(p, &t)) return false;
+        t.marikoSocVoltArray[idx] = v;
+        return cust_write_table(p, &t);
+    }
+
     static inline u32 cust_get_field(const CustomizeTable* t, u32 offset) {
         if (!t) return 0;
         return *(u32*)((u8*)t + offset);
@@ -370,6 +379,11 @@ namespace kip {
         return t->marikoGpuVoltArray[idx];
     }
 
+    static inline u32 cust_get_mariko_soc_volt(const CustomizeTable* t, int idx) {
+        if (!t || idx < 0 || idx >= 24) return 0;
+        return t->marikoSocVoltArray[idx];
+    }
+
     #define DECL_ERISTA_GPU_VOLT_HELPER(freq, idx)                 \
     static inline bool cust_set_erista_gpu_volt_##freq(            \
         const char* p, u32 v) {                                    \
@@ -380,6 +394,12 @@ namespace kip {
     static inline bool cust_set_mariko_gpu_volt_##freq(            \
         const char* p, u32 v) {                                    \
         return cust_set_mariko_gpu_volt(p, idx, v);                \
+    }
+
+    #define DECL_MARIKO_SOC_VOLT_HELPER(freq, idx)                 \
+    static inline bool cust_set_mariko_soc_volt_##freq(            \
+        const char* p, u32 v) {                                    \
+        return cust_set_mariko_soc_volt(p, idx, v);                \
     }
 
     DECL_ERISTA_GPU_VOLT_HELPER(76800,    0)
@@ -500,6 +520,35 @@ namespace kip {
     DECL_MARIKO_GPU_VOLT_GET(1459200, 21)
     DECL_MARIKO_GPU_VOLT_GET(1497600, 22)
     DECL_MARIKO_GPU_VOLT_GET(1536000, 23)
+
+    DECL_MARIKO_SOC_VOLT_HELPER(1666000, 10)
+    DECL_MARIKO_SOC_VOLT_HELPER(1733000, 11)
+    DECL_MARIKO_SOC_VOLT_HELPER(1800000, 12)
+    DECL_MARIKO_SOC_VOLT_HELPER(1866000, 13)
+    DECL_MARIKO_SOC_VOLT_HELPER(1933000, 14)
+    DECL_MARIKO_SOC_VOLT_HELPER(2000000, 15)
+    DECL_MARIKO_SOC_VOLT_HELPER(2066000, 16)
+    DECL_MARIKO_SOC_VOLT_HELPER(2133000, 17)
+    DECL_MARIKO_SOC_VOLT_HELPER(2200000, 18)
+    DECL_MARIKO_SOC_VOLT_HELPER(2266000, 19)
+    DECL_MARIKO_SOC_VOLT_HELPER(2333000, 10)
+    DECL_MARIKO_SOC_VOLT_HELPER(2400000, 11)
+    DECL_MARIKO_SOC_VOLT_HELPER(2466000, 12)
+    DECL_MARIKO_SOC_VOLT_HELPER(2533000, 13)
+    DECL_MARIKO_SOC_VOLT_HELPER(2600000, 14)
+    DECL_MARIKO_SOC_VOLT_HELPER(2666000, 15)
+    DECL_MARIKO_SOC_VOLT_HELPER(2733000, 16)
+    DECL_MARIKO_SOC_VOLT_HELPER(2800000, 17)
+    DECL_MARIKO_SOC_VOLT_HELPER(2866000, 18)
+    DECL_MARIKO_SOC_VOLT_HELPER(2933000, 19)
+    DECL_MARIKO_SOC_VOLT_HELPER(3000000, 20)
+    DECL_MARIKO_SOC_VOLT_HELPER(3066000, 21)
+    DECL_MARIKO_SOC_VOLT_HELPER(3133000, 22)
+    DECL_MARIKO_SOC_VOLT_HELPER(3200000, 23)
+    DECL_MARIKO_SOC_VOLT_HELPER(3266000, 24)
+    DECL_MARIKO_SOC_VOLT_HELPER(3333000, 25)
+    DECL_MARIKO_SOC_VOLT_HELPER(3400000, 26)
+    DECL_MARIKO_SOC_VOLT_HELPER(3466000, 27)
 
     void SetKipData();
     void GetKipData();
