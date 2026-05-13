@@ -553,8 +553,11 @@ void MiscGui::listUI()
     tsl::elm::CustomDrawer* rebootSetWarning = new tsl::elm::CustomDrawer([](tsl::gfx::Renderer *renderer, s32 x, s32 y, s32 w, s32 h) {
         renderer->drawString("\uE150 Settings marked in blue", false, x + 20, y + 30, 18, tsl::style::color::ColorText);
         renderer->drawString("don't require a reboot to apply!", false, x + 20, y + 50, 18, tsl::style::color::ColorText);
+        renderer->drawString("You can also press \ue0e3 to show", false, x + 20, y + 70, 18, tsl::style::color::ColorText);
+        renderer->drawString("information about each setting.", false, x + 20, y + 90, 18, tsl::style::color::ColorText);
+
     });
-    rebootSetWarning->setBoundaries(0, 0, tsl::cfg::FramebufferWidth, 70);
+    rebootSetWarning->setBoundaries(0, 0, tsl::cfg::FramebufferWidth, 110);
     this->listElement->addItem(rebootSetWarning);
 
     tsl::elm::ListItem* sysmoduleSettingsSubMenu = new tsl::elm::ListItem("General Settings");
