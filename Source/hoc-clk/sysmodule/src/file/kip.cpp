@@ -24,7 +24,6 @@
 namespace kip {
 
     bool kipAvailable = false;
-
     void SetKipData()
     {
         // TODO: figure out if this REALLY causes issues (i doubt it)
@@ -74,7 +73,7 @@ namespace kip {
         CUST_WRITE_FIELD_BATCH(&table, eristaEmcMaxClock, config::GetConfigValue(KipConfigValue_eristaEmcMaxClock));
         CUST_WRITE_FIELD_BATCH(&table, marikoEmcMaxClock, config::GetConfigValue(KipConfigValue_marikoEmcMaxClock));
         CUST_WRITE_FIELD_BATCH(&table, marikoEmcVddqVolt, config::GetConfigValue(KipConfigValue_marikoEmcVddqVolt));
-        CUST_WRITE_FIELD_BATCH(&table, emcDvbShift, config::GetConfigValue(KipConfigValue_emcDvbShift) > 8 && config::GetConfigValue(KipConfigValue_emcDvbShift) <= 16 ? 8 : config::GetConfigValue(KipConfigValue_emcDvbShift)); // 2.2.0 -> 2.3.0 compat
+        CUST_WRITE_FIELD_BATCH(&table, emcDvbShift, config::GetConfigValue(KipConfigValue_emcDvbShift));
         CUST_WRITE_FIELD_BATCH(&table, marikoSocVmax, config::GetConfigValue(KipConfigValue_marikoSocVmax));
 
         CUST_WRITE_FIELD_BATCH(&table, t1_tRCD, config::GetConfigValue(KipConfigValue_t1_tRCD));
@@ -191,6 +190,7 @@ namespace kip {
         // }
 
         if ((u64)crc32::checksum_file("sdmc:/atmosphere/kips/hoc.kip") != config::GetConfigValue(KipCrc32) && !config::GetConfigValue(HocClkConfigValue_IsFirstLoad)) {
+            MigrateKipData(cust_get_cust_rev(&table), cust_get_kip_version(&table));
             SetKipData();
             notification::writeNotification("Horizon OC\nKIP has been updated\nPlease reboot your console");
             return;
@@ -220,13 +220,14 @@ namespace kip {
 
         clockManager::gContext.kipVersion = kipVersion;
         configValues.values[KipConfigValue_custRev] = cust_get_cust_rev(&table);
+        configValues.values[KipConfigValue_KipVersion] = cust_get_kip_version(&table); // Run this after the check so we can do migration process
         configValues.values[KipConfigValue_hpMode] = cust_get_hp_mode(&table);
 
         configValues.values[KipConfigValue_commonEmcMemVolt] = cust_get_common_emc_volt(&table);
         configValues.values[KipConfigValue_eristaEmcMaxClock] = cust_get_erista_emc_max(&table);
         configValues.values[KipConfigValue_marikoEmcMaxClock] = cust_get_mariko_emc_max(&table);
         configValues.values[KipConfigValue_marikoEmcVddqVolt] = cust_get_mariko_emc_vddq(&table);
-        configValues.values[KipConfigValue_emcDvbShift] = cust_get_emc_dvb_shift(&table) > 8 && cust_get_emc_dvb_shift(&table) <= 16 ? 8 : cust_get_emc_dvb_shift(&table); // 2.2.0 -> 2.3.0 compat
+        configValues.values[KipConfigValue_emcDvbShift] = cust_get_emc_dvb_shift(&table);
         configValues.values[KipConfigValue_marikoSocVmax] = cust_get_marikoSocVmax(&table);
 
         configValues.values[KipConfigValue_t1_tRCD] = cust_get_tRCD(&table);
@@ -301,6 +302,17 @@ namespace kip {
             fileUtils::LogLine("[kip] Error: Config value list buffer size mismatch");
             notification::writeNotification("Horizon OC\nConfig Buffer Mismatch");
         }
+    }
+
+    void MigrateKipData(u32 custRev, u32 version) {
+        HocClkConfigValueList configValues;
+        config::GetConfigValues(&configValues);
+        u32 previousVersion = configValues.values[KipConfigValue_KipVersion];
+        if(previousVersion == 0) {
+            return; // We cannot migrate anything!
+        }
+
+        // This function cannot do anything at the moment. The capabilities will be expanded in the next release
     }
 }
 

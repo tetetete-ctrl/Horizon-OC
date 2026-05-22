@@ -76,6 +76,7 @@ typedef enum {
     HocClkConfigValue_MarikoMiddleFreqs,
 
     KipConfigValue_custRev,
+    KipConfigValue_KipVersion,
     // KipConfigValue_mtcConf,
     KipConfigValue_hpMode,
 
@@ -289,6 +290,8 @@ static inline const char* hocclkFormatConfigValue(HocClkConfigValue val, bool pr
         // KIP config values
         case KipConfigValue_custRev:
             return pretty ? "Custom Revision" : "kip_cust_rev";
+        case KipConfigValue_KipVersion:
+            return pretty ? "KIP Version" : "kip_version";
         // case KipConfigValue_mtcConf:
         //     return pretty ? "MTC Config" : "kip_mtc_conf";
         case KipConfigValue_hpMode:
@@ -549,7 +552,7 @@ static inline uint64_t hocclkValidConfigValue(HocClkConfigValue val, uint64_t in
         case HocClkConfigValue_GPUSchedulingMethod:
         case HocClkConfigValue_MarikoMiddleFreqs:
             return (input & 0x1) == input;
-
+        case KipConfigValue_KipVersion:
         case KipConfigValue_custRev:
         // case KipConfigValue_mtcConf:
         case KipConfigValue_hpMode:

@@ -486,7 +486,7 @@ namespace kip {
     DECL_MARIKO_GPU_VOLT_GET(1459200, 21)
     DECL_MARIKO_GPU_VOLT_GET(1497600, 22)
     DECL_MARIKO_GPU_VOLT_GET(1536000, 23)
-
+    void MigrateKipData(u32 custRev, u32 version);
     void SetKipData();
     void GetKipData();
 }
