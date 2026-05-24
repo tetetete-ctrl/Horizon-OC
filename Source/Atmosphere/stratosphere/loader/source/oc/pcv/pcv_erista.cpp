@@ -562,12 +562,51 @@ namespace ams::ldr::hoc::pcv::erista {
     //     R_SUCCEED();
     // }
 
+    u32 matchCount = 0;
+    Result MemMtcTableNewFwAsm(u32 *ptr, u32 movCountPatch, u32 MovOffset) {
+        (void) movCountPatch;
+        constexpr u32 MtcRetMtcAsm = 0x103CC640;
+        constexpr u32 MtcCbzAsm    = 0xB4000073;
+
+        u32 *retPtr = ScanAssembly(ptr, 5, MtcRetMtcAsm, AsmCompareAdrpNoImm);
+        R_UNLESS(retPtr != nullptr, ldr::ResultInvalidMtcTablePattern());
+
+        u32 cbz = *(ptr - MovOffset - 1);
+        R_UNLESS(AsmCbzCompareOpcodeOnly(cbz, MtcCbzAsm), ldr::ResultInvalidMtcTablePattern());
+        R_UNLESS(*(ptr - MovOffset - 2) == 0x54000461, ldr::ResultInvalidMtcTablePattern());
+
+        bool success = false;
+        u32 offset = 0;
+        for (u32 i = 0; i < 40; ++i) {
+            success = AsmComparePrologue(*(ptr - i), *(ptr - i - 1), *(ptr - i - 2), 0x910003FD, 0xA9014FF4, 0xA9BE7BFD);
+            if (success) {
+                offset = i;
+                break;
+            }
+        }
+
+        if (!success) {
+            R_THROW(ldr::ResultInvalidMtcTable());
+        }
+
+        ++matchCount;
+        u32 strAferMov = *(ptr - MovOffset + 1);
+
+        memset(ptr - offset + 2, NopIns, 184);
+        PATCH_OFFSET(ptr - MovOffset, movCountPatch);
+        PATCH_OFFSET(ptr - MovOffset + 1, strAferMov);
+
+        // for (u32 i = 0; i < 32; ++i) {
+          //   Log("0x%08X\n", __builtin_bswap32(*(ptr - offset - 3 + i)));
+        // }
+    }
+        R_SUCCEED();
 
     Result MemMtcTableAsm(u32 *ptr) {
         constexpr u32 AddpOffset = 1;
         constexpr u32 BrOffset   = 9;
         constexpr u32 MovOffset  = 7;
-
+        if (matchCount) return 1;
         /* Ensure we don't dereference memory before nso start. */
         R_UNLESS(ptr - BrOffset >= nsoStart, ldr::ResultInvalidMtcTablePattern());
 
@@ -579,7 +618,7 @@ namespace ams::ldr::hoc::pcv::erista {
 
         /* Pray this does not break. */
         u32 br = *(ptr - BrOffset);
-        R_UNLESS(AsmCompareBrNoRd(br, MtcBrAsm), ldr::ResultInvalidMtcTablePattern());
+        bool oldFw = AsmCompareBrNoRd(br, MtcBrAsm);
 
         /* Pray this does not break either. */
         u32 mov = *(ptr - MovOffset);
@@ -588,7 +627,12 @@ namespace ams::ldr::hoc::pcv::erista {
         u8  movRd         = asm_get_rd(mov);
         u32 movCountPatch = asm_set_rd(asm_set_imm16(MtcMovAsm, newEmcList.size()), movRd);
 
-        PATCH_OFFSET(ptr - BrOffset,  NopIns);
+        if (!oldFw) {
+            MemMtcTableNewFwAsm(ptr, movCountPatch, MovOffset);
+            R_SUCCEED();
+        }
+
+        PATCH_OFFSET(ptr - BrOffset, NopIns);
         PATCH_OFFSET(ptr - MovOffset, movCountPatch);
 
         R_SUCCEED();
@@ -616,7 +660,7 @@ namespace ams::ldr::hoc::pcv::erista {
             {"MEM Freq Max",      &MemFreqMax,             0, nullptr,  EmcClkOSLimit        },
             {"MEM Freq PLLM",     &MemFreqPllmLimit,       2, nullptr,  EmcClkPllmLimit      },
             {"MEM Volt",          &MemVoltHandler,         2, nullptr,  MemVoltHOS           },
-            {"MEM Table Asm",     &MemMtcTableAsm,         1,           &MemMtcGetGetTablePatternFn },
+            {"MEM Table Asm",     &MemMtcTableAsm,         0,           &MemMtcGetGetTablePatternFn },
         };
 
         for (uintptr_t ptr = mapped_nso; ptr <= mapped_nso + nso_size - sizeof(EristaMtcTable); ptr += sizeof(u32)) {
@@ -628,9 +672,12 @@ namespace ams::ldr::hoc::pcv::erista {
             }
         }
 
+        // ViewLog();
+
         for (auto &entry : patches) {
-            LOGGING("%s Count: %zu\n", entry.description, entry.patched_count);
+            Log("%s Count: %zu\n", entry.description, entry.patched_count);
             if (R_FAILED(entry.CheckResult())) {
+                ViewLog();
                 panic::SmcError(panic::Patch);
 
                 CRASH(entry.description);
