@@ -1598,6 +1598,206 @@ protected:
             this->configNamedValues[thisKey] = buildNamedValues(tierIdx);
         };
 
+        {
+            HocClkConfigValueList* cfgPtr = this->configList;
+            bool mariko = IsMariko();
+
+            auto* graph = new tsl::elm::CustomDrawer(
+                [cfgPtr, mariko](tsl::gfx::Renderer* renderer, s32 x, s32 y, s32 w, s32 h) {
+                    static const HocClkConfigValue kR[4] = {
+                        KipConfigValue_read_latency_1333,  KipConfigValue_read_latency_1600,
+                        KipConfigValue_read_latency_1866,  KipConfigValue_read_latency_2133,
+                    };
+                    static const HocClkConfigValue kW[4] = {
+                        KipConfigValue_write_latency_1333, KipConfigValue_write_latency_1600,
+                        KipConfigValue_write_latency_1866, KipConfigValue_write_latency_2133,
+                    };
+
+                    uint32_t capMax = mariko
+                        ? (uint32_t)cfgPtr->values[KipConfigValue_marikoEmcMaxClock]
+                        : (uint32_t)cfgPtr->values[KipConfigValue_eristaEmcMaxClock];
+
+                    uint32_t rv[4], wv[4];
+                    for (int i = 0; i < 4; i++) {
+                        rv[i] = (uint32_t)cfgPtr->values[kR[i]];
+                        wv[i] = (uint32_t)cfgPtr->values[kW[i]];
+                        if (rv[i] == 0xFFFFFFFFu) rv[i] = capMax;
+                        if (wv[i] == 0xFFFFFFFFu) wv[i] = capMax;
+                    }
+
+                    const tsl::Color cRead  = tsl::Color(4, 14, 15, 15);
+                    const tsl::Color cWrite = tsl::Color(15, 9,  2, 15);
+                    const tsl::Color cMerge = tsl::Color(5, 15,  4, 15);
+                    const tsl::Color cAxis  = tsl::Color(5,  5,  5, 15);
+
+                    const s32 gx    = x + 52;
+                    const s32 gw    = w - 64;
+                    const s32 gy    = y + 14;
+                    const s32 gh    = 72;
+                    const s32 th    = gh / 3;
+                    const s32 axisY = gy + gh;
+
+                    auto tierY = [&](int i) -> s32 { return gy + gh - i * th; };
+                    // Fixed ruler: 1600 MHz (left) → 3300 MHz (right)
+                    constexpr uint32_t kRMin = 1600000u, kRMax = 3300000u;
+                    auto freqX = [&](uint32_t kHz) -> s32 {
+                        if (kHz <= kRMin) return gx;
+                        if (kHz >= kRMax) return gx + gw;
+                        return gx + (s32)((uint64_t)(kHz - kRMin) * (uint32_t)gw / (kRMax - kRMin));
+                    };
+
+                    const char* tierLabels[4] = {"1333", "1600", "1866", "2133"};
+                    for (int i = 0; i < 4; i++) {
+                        renderer->drawString(tierLabels[i], false, x + 4, tierY(i) + 5, 12, cAxis);
+                        renderer->drawRect(gx, tierY(i), gw, 1, cAxis);
+                    }
+                    renderer->drawRect(gx, gy, 1, gh + 1, cAxis);
+                    renderer->drawRect(gx, axisY, gw, 1, cAxis);
+
+                    struct LatSeg { int tier; uint32_t start, end; };
+                    auto buildSegs = [&](const uint32_t* vals) -> std::vector<LatSeg> {
+                        struct Pt { int tier; uint32_t freq; };
+                        Pt pts[4]; int n = 0;
+                        for (int i = 0; i < 4; i++)
+                            if (vals[i] != 0) pts[n++] = {i, vals[i]};
+                        if (n == 0) return {};
+                        std::vector<LatSeg> segs;
+                        uint32_t prev = kRMin;
+                        for (int k = 0; k < n; k++) {
+                            if (pts[k].freq > prev)
+                                segs.push_back({pts[k].tier, prev, pts[k].freq});
+                            prev = pts[k].freq;
+                        }
+                        if (prev < kRMax)
+                            segs.push_back({pts[n-1].tier, prev, kRMax});
+                        return segs;
+                    };
+
+                    auto rSegs = buildSegs(rv);
+                    auto wSegs = buildSegs(wv);
+
+                    auto drawSeriesSegs = [&](const std::vector<LatSeg>& segs,
+                                              const std::vector<LatSeg>& other,
+                                              const tsl::Color& c, s32 yOff)
+                    {
+                        for (const auto& seg : segs) {
+                            s32 ty    = tierY(seg.tier) + yOff;
+                            s32 tyMrg = tierY(seg.tier);
+                            struct Iv { uint32_t s, e; };
+                            Iv ovlp[4]; int no = 0;
+                            for (const auto& os : other) {
+                                if (os.tier != seg.tier) continue;
+                                uint32_t s = seg.start > os.start ? seg.start : os.start;
+                                uint32_t e = seg.end   < os.end   ? seg.end   : os.end;
+                                if (s < e) ovlp[no++] = {s, e};
+                            }
+                            for (int a = 1; a < no; a++)
+                                for (int b = a; b > 0 && ovlp[b-1].s > ovlp[b].s; b--)
+                                    { auto t = ovlp[b]; ovlp[b] = ovlp[b-1]; ovlp[b-1] = t; }
+                            uint32_t cur = seg.start;
+                            for (int oi = 0; oi < no; oi++) {
+                                if (cur < ovlp[oi].s) {
+                                    s32 x0 = freqX(cur), x1 = freqX(ovlp[oi].s);
+                                    if (x1 > x0) renderer->drawRect(x0, ty, x1-x0, 2, c);
+                                }
+                                s32 x0 = freqX(ovlp[oi].s), x1 = freqX(ovlp[oi].e);
+                                if (x1 > x0) renderer->drawRect(x0, tyMrg, x1-x0, 2, cMerge);
+                                cur = ovlp[oi].e;
+                            }
+                            if (cur < seg.end) {
+                                s32 x0 = freqX(cur), x1 = freqX(seg.end);
+                                if (x1 > x0) renderer->drawRect(x0, ty, x1-x0, 2, c);
+                            }
+                        }
+                        for (int k = 0; k+1 < (int)segs.size(); k++) {
+                            if (segs[k].end != segs[k+1].start) continue;
+                            uint32_t transFreq = segs[k].end;
+                            bool otherHere = false;
+                            for (int j = 0; j+1 < (int)other.size(); j++)
+                                if (other[j].end == transFreq && other[j+1].start == transFreq)
+                                    { otherHere = true; break; }
+                            s32 fx = freqX(transFreq);
+                            s32 y1 = tierY(segs[k].tier)   + yOff;
+                            s32 y2 = tierY(segs[k+1].tier) + yOff;
+                            s32 topY = y1 < y2 ? y1 : y2;
+                            s32 botY = y1 > y2 ? y1 : y2;
+                            if (botY > topY)
+                                renderer->drawRect(fx, topY, 2, botY - topY + 2, otherHere ? cMerge : c);
+                        }
+                    };
+
+                    drawSeriesSegs(rSegs, wSegs, cRead,  0);
+                    drawSeriesSegs(wSegs, rSegs, cWrite, 0);
+
+                    static const uint8_t kDigBmp[10][5] = {
+                        {7,5,5,5,7}, // 0
+                        {6,2,2,2,7}, // 1
+                        {7,1,7,4,7}, // 2
+                        {7,1,3,1,7}, // 3
+                        {5,5,7,1,1}, // 4
+                        {7,4,7,1,7}, // 5
+                        {7,4,7,5,7}, // 6
+                        {7,1,1,2,2}, // 7
+                        {7,5,7,5,7}, // 8
+                        {7,5,7,1,7}, // 9
+                    };
+                    const s32 pix     = 2;
+                    const s32 charH   = 3 * pix;
+                    const s32 charW   = 5 * pix;
+                    const s32 charGap = 1;
+
+                    auto drawSidewaysMHz = [&](uint32_t mhz, s32 cx, s32 startY, const tsl::Color& c) {
+                        char buf[8];
+                        snprintf(buf, sizeof(buf), "%u", mhz);
+                        s32 originX = cx - charW / 2;
+                        for (int ci = 0; buf[ci]; ci++) {
+                            int d = buf[ci] - '0';
+                            if (d < 0 || d > 9) continue;
+                            s32 cy = startY + ci * (charH + charGap);
+                            for (int r = 0; r < 5; r++) {
+                                for (int col = 0; col < 3; col++) {
+                                    if (!((kDigBmp[d][r] >> (2 - col)) & 1)) continue;
+                                    renderer->drawRect(originX + (4-r)*pix, cy + col*pix, pix, pix, c);
+                                }
+                            }
+                        }
+                    };
+
+                    static const uint32_t kRulerMHz[] = {
+                        1600, 1733, 1866, 2000, 2133, 2266,
+                        2400, 2533, 2666, 2800, 2933, 3066, 3200, 3300,
+                    };
+                    for (uint32_t mhz : kRulerMHz) {
+                        s32 fx = freqX(mhz * 1000u);
+                        renderer->drawRect(fx, axisY, 1, 4, cAxis);
+                        drawSidewaysMHz(mhz, fx, axisY + 6, cAxis);
+                    }
+
+                    // Breakpoint dots
+                    for (int i = 0; i < 4; i++) {
+                        s32 ty = tierY(i) + 1;
+                        bool merged = (rv[i] != 0 && rv[i] == wv[i]);
+                        if (merged) {
+                            renderer->drawCircle(freqX(rv[i]), ty, 4, true, cMerge);
+                        } else {
+                            if (rv[i]) renderer->drawCircle(freqX(rv[i]), ty, 4, true, cRead);
+                            if (wv[i]) renderer->drawCircle(freqX(wv[i]), ty, 4, true, cWrite);
+                        }
+                    }
+
+                    s32 ly = y + h - 14;
+                    renderer->drawRect(gx,       ly, 14, 3, cRead);
+                    renderer->drawString("Read",  false, gx + 17,  ly + 5, 12, cRead);
+                    renderer->drawRect(gx + 60,  ly, 14, 3, cWrite);
+                    renderer->drawString("Write", false, gx + 77,  ly + 5, 12, cWrite);
+                    renderer->drawRect(gx + 125, ly, 14, 3, cMerge);
+                    renderer->drawString("Same",  false, gx + 142, ly + 5, 12, cMerge);
+                }
+            );
+            graph->setBoundaries(0, 0, tsl::cfg::FramebufferWidth, 165);
+            this->listElement->addItem(graph);
+        }
+
         this->listElement->addItem(new tsl::elm::CategoryHeader("Read Latency"));
         for (int i = 0; i < 4; i++)
             addLatencyRow(kTierLabels[i], i, kLatencyRKeys);
