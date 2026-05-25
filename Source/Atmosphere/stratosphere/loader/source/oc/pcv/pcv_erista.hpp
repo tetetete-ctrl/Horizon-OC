@@ -26,9 +26,6 @@
 
 namespace ams::ldr::hoc::pcv::erista {
 
-    static u32 maxEmcClocks[] = { C.eristaEmcMaxClock2, C.eristaEmcMaxClock1, C.eristaEmcMaxClock, };
-    #define GET_MAX_OF_ARR(ARR) (*std::max_element(ARR, ARR + std::size(ARR)))
-
     constexpr cvb_entry_t CpuCvbTableDefault[] = {
         // CPU_PLL_CVB_TABLE_ODN
         {  204000,  {721094}, {                         } },
@@ -109,8 +106,11 @@ namespace ams::ldr::hoc::pcv::erista {
         {                                                        },
     };
 
+    constexpr u32 EmcListDefault[]   = { 40800, 68000, 102000, 204000, 408000, 665600, 800000, 1065600, 1331200, 1600000, };
+    constexpr u32 EmcListSizeDefault = std::size(EmcListDefault);
+    constexpr u32 EmcListEndDefault  = EmcListSizeDefault - 1;
+
     constexpr u32 MemVoltHOS      = 1125'000;
-    constexpr u32 EmcClkMinFreq   = 40800; /* 40.8 MHz table only exists on erista. */
     constexpr u32 EmcClkPllmLimit = 1866'000'000;
 
     constexpr u32 MTC_TABLE_REV        = 7;

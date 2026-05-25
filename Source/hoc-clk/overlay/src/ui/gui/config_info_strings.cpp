@@ -98,8 +98,8 @@ std::vector<std::string> ConfigInfoStrings(HocClkConfigValue val, bool isMariko,
                 "- Washed: Washed out colors.",
                 "- Basic: Real natural profile.",
                 "- Natural: Not actually natural.. Extra saturation.",
-                "- Vivid: Saturated.",      
-                "Default: Do not override"  
+                "- Vivid: Saturated.",
+                "Default: Do not override"
             };
 
         case HocClkConfigValue_CpuGovernorMinimumFreq:
@@ -227,7 +227,7 @@ std::vector<std::string> ConfigInfoStrings(HocClkConfigValue val, bool isMariko,
                 "Default: 600 mV"
             };
 
-        case KipConfigValue_stepMode:         
+        case KipConfigValue_stepMode:
             return {
                 "The step that RAM clocks take.",
                 "Options (with examples):",
@@ -250,8 +250,6 @@ std::vector<std::string> ConfigInfoStrings(HocClkConfigValue val, bool isMariko,
             };
 
         case KipConfigValue_eristaEmcMaxClock:
-        case KipConfigValue_eristaEmcMaxClock1:
-        case KipConfigValue_eristaEmcMaxClock2:
             return {
                 "The RAM frequency used in the particular slot. Higher frequencies may cause instability, so increase this gradually and test for stability.",
                 "Default: Disabled (1600 MHz)"
@@ -363,19 +361,6 @@ std::vector<std::string> ConfigInfoStrings(HocClkConfigValue val, bool isMariko,
                 "These properties apply for both write and read latencies, and you can mix-and-match the brackets if necessary",
                 "Default: -"
             };
-
-        case KipConfigValue_mem_burst_read_latency:
-            return {
-                "The read latency for the ram",
-                "Default: 1600 RL"
-            };
-
-        case KipConfigValue_mem_burst_write_latency:
-            return {
-                "The write latency for the ram",
-                "Default: 1600 WL"
-            };
-
         case KipConfigValue_marikoCpuUVLow:
             return {
                 "The CPU UV level used before tBreak",
@@ -540,12 +525,7 @@ std::vector<std::string> ConfigInfoStrings(HocClkConfigValue val, bool isMariko,
                 "- Enabled: Enables GPU scheduling, 96.5% GPU max load",
                 "Default: Do not override"
             };
-        case KipConfigValue_marikoGpuBootVolt:
-            return {
-                "The voltage supplied to the GPU during boot and when the temperature is below 20°C (in mV).",
-                "Warning: Changing this value may cause instability.",
-                "Default: 800mV"
-            };
+
         default:
             return {};
     }
