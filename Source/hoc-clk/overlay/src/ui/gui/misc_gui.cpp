@@ -1116,7 +1116,7 @@ protected:
                 NamedValue("1666 MHz", 1666000),
                 NamedValue("1700 MHz", 1700000),
                 NamedValue("1733 MHz", 1733000),
-                NamedValue("1766 MHz", 1766000),
+                // NamedValue("1766 MHz", 1766000),
                 NamedValue("1800 MHz", 1800000),
                 NamedValue("1833 MHz", 1833000),
                 NamedValue("1862 MHz", 1862400, "JEDEC."),
