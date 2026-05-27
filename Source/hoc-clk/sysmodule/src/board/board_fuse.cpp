@@ -43,7 +43,23 @@ namespace board {
             /* >= 1754 */
             gpuBracket = 3;
         } else {
-            gpuBracket = speedo > 2050 ? 1 : 0;
+            switch(speedo) {
+                case 1850 ... 1925:
+                    gpuBracket = 0;
+                    break;
+                case 1926 ... 2025:
+                    gpuBracket = 1;
+                    break;
+                case 2026 ... 2100:
+                    gpuBracket = 2;
+                    break;
+                case 2100 ... 2200:
+                    gpuBracket = 3;
+                    break;
+                default:
+                    gpuBracket = 0;
+                    break;
+            }
         }
     }
 
