@@ -1745,16 +1745,16 @@ protected:
                     const tsl::Color cMerge = tsl::Color(5, 15,  4, 15);
                     const tsl::Color cAxis  = tsl::Color(5,  5,  5, 15);
 
-                    const s32 gx    = x + 52;
-                    const s32 gw    = w - 64;
+                    const s32 gx    = x + (mariko ? 52 : 47);
+                    const s32 gw    = w - (mariko ? 64 : 59);
                     const s32 gy    = y + 14;
                     const s32 gh    = 54;
                     const s32 th    = gh / 3;
                     const s32 axisY = gy + gh;
 
                     auto tierY = [&](int i) -> s32 { return gy + gh - i * th; };
-                    // Fixed ruler: 1600 MHz (left) → 3300 MHz (right)
-                    constexpr uint32_t kRMin = 1600000u, kRMax = 3300000u;
+                    const uint32_t kRMin = 1600000u;
+                    const uint32_t kRMax = mariko ? 3300000u : 2400000u;
                     auto freqX = [&](uint32_t kHz) -> s32 {
                         if (kHz <= kRMin) return gx;
                         if (kHz >= kRMax) return gx + gw;
@@ -1856,36 +1856,47 @@ protected:
                         {7,5,7,5,7}, // 8
                         {7,5,7,1,7}, // 9
                     };
-                    const s32 pix     = 2;
-                    const s32 charH   = 3 * pix;
-                    const s32 charW   = 5 * pix;
                     const s32 charGap = 1;
 
-                    auto drawSidewaysMHz = [&](uint32_t mhz, s32 cx, s32 startY, const tsl::Color& c) {
+                    auto drawSidewaysMHz = [&](uint32_t mhz, s32 cx, s32 startY, const tsl::Color& c, s32 pixSize) {
                         char buf[8];
                         snprintf(buf, sizeof(buf), "%u", mhz);
-                        s32 originX = cx - charW / 2;
+                        s32 cW = 5 * pixSize;
+                        s32 cH = 3 * pixSize;
+                        s32 originX = cx - cW / 2;
                         for (int ci = 0; buf[ci]; ci++) {
                             int d = buf[ci] - '0';
                             if (d < 0 || d > 9) continue;
-                            s32 cy = startY + ci * (charH + charGap);
+                            s32 cy = startY + ci * (cH + charGap);
                             for (int r = 0; r < 5; r++) {
                                 for (int col = 0; col < 3; col++) {
                                     if (!((kDigBmp[d][r] >> (2 - col)) & 1)) continue;
-                                    renderer->drawRect(originX + (4-r)*pix, cy + col*pix, pix, pix, c);
+                                    renderer->drawRect(originX + (4-r)*pixSize, cy + col*pixSize, pixSize, pixSize, c);
                                 }
                             }
                         }
                     };
 
-                    static const uint32_t kRulerMHz[] = {
-                        1600, 1733, 1866, 2000, 2133, 2266,
-                        2400, 2533, 2666, 2800, 2933, 3066, 3200, 3300,
-                    };
-                    for (uint32_t mhz : kRulerMHz) {
-                        s32 fx = freqX(mhz * 1000u);
-                        renderer->drawRect(fx, axisY, 1, 4, cAxis);
-                        drawSidewaysMHz(mhz, fx, axisY + 6, cAxis);
+                    if (mariko) {
+                        static const uint32_t kRulerMHz[] = {
+                            1600, 1733, 1866, 2000, 2133, 2266,
+                            2400, 2533, 2666, 2800, 2933, 3066, 3200, 3300,
+                        };
+                        for (uint32_t mhz : kRulerMHz) {
+                            s32 fx = freqX(mhz * 1000u);
+                            renderer->drawRect(fx, axisY, 1, 4, cAxis);
+                            drawSidewaysMHz(mhz, fx, axisY + 6, cAxis, 2);
+                        }
+                    } else {
+                        static const uint32_t kEristaRulerMHz[] = {
+                            1600, 1666, 1733, 1800, 1866, 1933,
+                            2000, 2066, 2133, 2200, 2266, 2333, 2400,
+                        };
+                        for (uint32_t mhz : kEristaRulerMHz) {
+                            s32 fx = freqX(mhz * 1000u);
+                            renderer->drawRect(fx, axisY, 1, 4, cAxis);
+                            drawSidewaysMHz(mhz, fx, axisY + 6, cAxis, 2);
+                        }
                     }
 
                     // Breakpoint dots
