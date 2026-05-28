@@ -512,6 +512,8 @@ namespace clockManager {
             u32 threshold = (u32)config::GetConfigValue(HocClkConfigValue_AutoRamCpuRamOCThreshold) * 1000;
             if (ramHz >= threshold) {
                 u32 cpuOverrideHz = (u32)config::GetConfigValue(HocClkConfigValue_AutoRamCpuCpuOCFreq) * 1000;
+                if (cpuOverrideHz <= gContext.freqs[HocClkModule_CPU])
+                    return;
                 maxHz = GetMaxAllowedHz(HocClkModule_CPU, gContext.profile);
                 nearestHz = GetNearestHz(HocClkModule_CPU, cpuOverrideHz, maxHz);
                 fileUtils::LogLine(
