@@ -301,7 +301,7 @@ namespace clockManager {
             return true;
         }
 
-        if (config::GetConfigValue(HocClkConfigValue_AutoRAMCPUOverclock) && !isBoost && !governor::isCpuGovernorEnabled) {
+        if (config::GetConfigValue(HocClkConfigValue_AutoRAMCPUOverclock) && !isBoost && !governor::isCpuGovernorEnabled && (board::GetSocType() == HocClkSocType_Mariko)) {
             u32 ramHz = gContext.freqs[HocClkModule_MEM];
             u32 threshold = (u32)config::GetConfigValue(HocClkConfigValue_AutoRamCpuRamOCThreshold) * 1000;
             if (ramHz >= threshold) {
