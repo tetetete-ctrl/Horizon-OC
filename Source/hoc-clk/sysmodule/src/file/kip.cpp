@@ -318,6 +318,8 @@ namespace kip {
             // add marikoGpuBootVolt with default value of 800mV
             configValues.values[KipConfigValue_marikoGpuBootVolt] = 800;
 
+            configValues.values[KipConfigValue_marikoGpuUV] += 2; // Raise UV levels
+            configValues.values[KipConfigValue_commonGpuVoltOffset] = (u32)(-(s64)(configValues.values[KipConfigValue_commonGpuVoltOffset])); // Migrate GPU Volt Offset
             // Raise min cpu vmin
             if(configValues.values[KipConfigValue_eristaCpuVmin] < 750) {
                 configValues.values[KipConfigValue_eristaCpuVmin] = 750;

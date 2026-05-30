@@ -2246,12 +2246,19 @@ protected:
 
         this->listElement->addItem(new CompactCategoryHeader("GPU Settings"));
 
-        std::vector<NamedValue> gpuUvConf = {
-            NamedValue("HiOPT", 0),
-            NamedValue("HiOPT - 15mV", 1),
-            NamedValue("High UV Table", 2),
+        std::vector<NamedValue> gpuUvConfM = {
+            NamedValue("No Undervolt", 0),
+            NamedValue("SLT Table", 1),
+            NamedValue("HiOPT Table", 2),
+            NamedValue("HiOPT - 15mV", 3),
+            NamedValue("High UV Table", 4),
         };
 
+        std::vector<NamedValue> gpuUvConfE = {
+            NamedValue("No Undervolt", 0),
+            NamedValue("SLT Table", 1),
+            NamedValue("HiOPT Table", 2),
+        };
         std::vector<NamedValue> mGpuVoltsVmin = {
             NamedValue("480mV", 480), NamedValue("485mV", 485), NamedValue("490mV", 490),
             NamedValue("495mV", 495), NamedValue("500mV", 500), NamedValue("505mV", 505),
@@ -2285,7 +2292,7 @@ protected:
                 "GPU Undervolt Table",
                 &thresholdsDisabled,
                 {},
-                gpuUvConf,
+                gpuUvConfE,
                 false,
                 true
             );
@@ -2308,7 +2315,7 @@ protected:
                 "GPU Undervolt Table",
                 &thresholdsDisabled,
                 {},
-                gpuUvConf,
+                gpuUvConfM,
                 false,
                 true
             );
@@ -2343,16 +2350,27 @@ protected:
         }
 
         std::vector<NamedValue> gpuOffset = {
-            NamedValue("-50 mV", 50),
-            NamedValue("-45 mV", 45),
-            NamedValue("-40 mV", 40),
-            NamedValue("-30 mV", 30),
-            NamedValue("-25 mV", 25),
-            NamedValue("-20 mV", 20),
-            NamedValue("-15 mV", 15),
-            NamedValue("-10 mV", 10),
-            NamedValue(" -5 mV", 5),
-            NamedValue("Disabled", 0),
+            NamedValue("-50 mV", static_cast<u32>(-50)),
+            NamedValue("-45 mV", static_cast<u32>(-45)),
+            NamedValue("-40 mV", static_cast<u32>(-40)),
+            NamedValue("-35 mV", static_cast<u32>(-35)),
+            NamedValue("-30 mV", static_cast<u32>(-30)),
+            NamedValue("-25 mV", static_cast<u32>(-25)),
+            NamedValue("-20 mV", static_cast<u32>(-20)),
+            NamedValue("-15 mV", static_cast<u32>(-15)),
+            NamedValue("-10 mV", static_cast<u32>(-10)),
+            NamedValue("-5 mV", static_cast<u32>(-5)),
+            NamedValue("0 mV", 0),
+            NamedValue("5 mV", 5),
+            NamedValue("10 mV", 10),
+            NamedValue("15 mV", 15),
+            NamedValue("20 mV", 20),
+            NamedValue("25 mV", 25),
+            NamedValue("30 mV", 30),
+            NamedValue("35 mV", 35),
+            NamedValue("40 mV", 40),
+            NamedValue("45 mV", 45),
+            NamedValue("50 mV", 50),
         };
 
         addConfigButton(

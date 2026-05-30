@@ -301,8 +301,14 @@ namespace ams::ldr::hoc::pcv::mariko {
         case 2:
             max_clock = GetDvfsTableLastEntry(C.marikoGpuDvfsTableHiOPT)->freq;
             break;
+        case 3:
+            max_clock = GetDvfsTableLastEntry(C.marikoGpuDvfsTableHiOPT15)->freq;
+            break;
+        case 4:
+            max_clock = GetDvfsTableLastEntry(C.marikoGpuDvfsTableHighUV)->freq;
+            break;
         default:
-            max_clock = GetDvfsTableLastEntry(C.marikoGpuDvfsTable)->freq;
+            max_clock = GetDvfsTableLastEntry(C.marikoGpuDvfsTableHiOPT)->freq;
             break;
         }
 

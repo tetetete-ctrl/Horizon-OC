@@ -119,7 +119,7 @@ struct CustomizeTable {
     u32 marikoGpuBootVolt;
     u32 marikoGpuVmax;
 
-    u32 commonGpuVoltOffset;
+    s32 commonGpuVoltOffset;
 
     u32 eristaGpuVoltArray[27];
     u32 marikoGpuVoltArray[24];
@@ -145,6 +145,8 @@ struct CustomizeTable {
     CustomizeGpuDvfsTable marikoGpuDvfsTable;
     CustomizeGpuDvfsTable marikoGpuDvfsTableSLT;
     CustomizeGpuDvfsTable marikoGpuDvfsTableHiOPT;
+    CustomizeGpuDvfsTable marikoGpuDvfsTableHiOPT15;
+    CustomizeGpuDvfsTable marikoGpuDvfsTableHighUV;
 
 };
 

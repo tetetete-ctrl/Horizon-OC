@@ -127,8 +127,14 @@ namespace ams::ldr::hoc::pcv {
                 case 2:
                     customize_table = const_cast<cvb_entry_t *>(C.marikoGpuDvfsTableHiOPT);
                     break;
+                case 3:
+                    customize_table = const_cast<cvb_entry_t *>(C.marikoGpuDvfsTableHiOPT15);
+                    break;
+                case 4:
+                    customize_table = const_cast<cvb_entry_t *>(C.marikoGpuDvfsTableHighUV);
+                    break;
                 default:
-                    customize_table = const_cast<cvb_entry_t *>(C.marikoGpuDvfsTable);
+                    customize_table = const_cast<cvb_entry_t *>(C.marikoGpuDvfsTableHiOPT);
                     break;
                 }
         } else {

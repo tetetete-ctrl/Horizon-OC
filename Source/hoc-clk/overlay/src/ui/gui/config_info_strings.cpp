@@ -137,13 +137,17 @@ std::vector<std::string> ConfigInfoStrings(HocClkConfigValue val, bool isMariko,
                     "Warning: Enabling this may cause damage to your device without a proper undervolt. Use with caution!",
                     "Clock cappings:",
                     "- Handheld:",
-                    "  - GPU (HiOPT): 614 MHz",
-                    "  - GPU (HiOPT - 15mV): 691 MHz",
-                    "  - GPU (High UV): 768 MHz",
+                    "  - GPU (No UV): 614 MHz",
+                    "  - GPU (SLT): 691 MHz",
+                    "  - GPU (HiOPT): 768 MHz",
+                    "  - GPU (HiOPT - 15mV): 844 MHz",
+                    "  - GPU (High UV): 921 MHz",
                     "- USB Charger",
-                    "  - GPU (HiOPT): 844 MHz",
-                    "  - GPU (HiOPT - 15mV): 921 MHz",
-                    "  - GPU (High UV): 998 MHz",
+                    "  - GPU (No UV): 844 MHz",
+                    "  - GPU (SLT): 921 MHz",
+                    "  - GPU (HiOPT): 998 MHz",
+                    "  - GPU (HiOPT - 15mV): 1075 MHz",
+                    "  - GPU (High UV): 1152 MHz",
                     "- PD Charger / Docked:",
                     "  - No capping applied",
                     "Default: OFF"
@@ -463,10 +467,12 @@ std::vector<std::string> ConfigInfoStrings(HocClkConfigValue val, bool isMariko,
             return {
                 "GPU undervolt level",
                 "Options:",
+                " - No Undervolt: No Undervolt...",
+                " - SLT Table: NVIDIA custom SLT Table",
                 " - HiOPT: L4T Custom HiOPT table",
                 " - HiOPT - 15mV: L4T Custom HiOPT table with a 15mV offset",
-                " - High UV: The highest undervolt table, recommended",
-                "Default: HiOPT"
+                " - High UV: The highest undervolt table",
+                "Default: No Undervolt"
             };
 
         case KipConfigValue_marikoGpuVmin:
@@ -502,10 +508,10 @@ std::vector<std::string> ConfigInfoStrings(HocClkConfigValue val, bool isMariko,
             return {
                 "GPU undervolt level",
                 "Options:",
+                " - No Undervolt: No Undervolt...",
+                " - SLT Table: NVIDIA custom SLT Table",
                 " - HiOPT: L4T Custom HiOPT table",
-                " - HiOPT - 15mV: L4T Custom HiOPT table with a 15mV offset",
-                " - High UV: The highest undervolt table, recommended",
-                "Default: HiOPT"
+                "Default: No Undervolt"
             };
 
         case KipConfigValue_eristaGpuVmin:
@@ -516,7 +522,7 @@ std::vector<std::string> ConfigInfoStrings(HocClkConfigValue val, bool isMariko,
 
         case KipConfigValue_commonGpuVoltOffset:
             return {
-                "The offset added/subtracted to all AUTO GPU voltages",
+                "The offset added/subtracted to all GPU voltages marked as \"auto\"",
                 "Default: 0 mV (Disabled)"
             };
 
