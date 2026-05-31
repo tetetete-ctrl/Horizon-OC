@@ -12,7 +12,7 @@ jobs:
 
     # Minimal devkitA64 container
     container:
-      image: devkitpro/devkita64:20251231
+      image: devkitpro/devkita64:20260219
 
     steps:
       - name: Checkout repository and submodules # needed for hoc-clk
@@ -55,7 +55,7 @@ jobs:
           echo $GITHUB_SHA >> dist/.commit
 
       - name: Clone Libnx
-        run: git clone https://github.com/switchbrew/libnx.git
+        run: git clone https://github.com/switchbrew/libnx.git --depth=1 --single-branch
 
       - name: Clone Atmosphere
         run: git clone --depth=1 --single-branch https://github.com/Atmosphere-NX/Atmosphere.git atmosphere -b $(cat ams_ver.txt)
@@ -70,7 +70,7 @@ jobs:
           cp -rf Source/Atmosphere/stratosphere/loader/source/* build/stratosphere/loader/source/
 
       - name: Cache ccache
-        uses: actions/cache@v5.0.3
+        uses: actions/cache@v5.0.5
         with:
           path: /root/.cache/ccache
           key: ccache-${{ runner.os }}-devkitpro-ams-${{ hashFiles('ams_ver.txt') }} # last key was utter garbage, stick to ams versions, 
