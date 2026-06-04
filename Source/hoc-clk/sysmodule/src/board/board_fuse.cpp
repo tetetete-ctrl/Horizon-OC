@@ -15,16 +15,18 @@
  *
  */
 
-#include <switch.h>
-#include <fuse.h>
-#include "board_fuse.hpp"
 #include <cstring>
+#include <fuse.h>
+#include <switch.h>
+
 #include "board.hpp"
+#include "board_fuse.hpp"
+
 
 namespace board {
 
     void SetGpuBracket(u16 speedo, u8 &gpuBracket) {
-        if(GetSocType() == HocClkSocType_Mariko) {
+        if (GetSocType() == HocClkSocType_Mariko) {
             if (speedo <= 1624) {
                 gpuBracket = 0;
                 return;
@@ -43,7 +45,7 @@ namespace board {
             /* >= 1754 */
             gpuBracket = 3;
         } else {
-            switch(speedo) {
+            switch (speedo) {
                 case 1850 ... 1925:
                     gpuBracket = 0;
                     break;
@@ -70,12 +72,12 @@ namespace board {
         speedo.cpuSpeedo = *reinterpret_cast<u16 *>(fusePtr + FUSE_CPU_SPEEDO_0_CALIB);
         speedo.gpuSpeedo = *reinterpret_cast<u16 *>(fusePtr + FUSE_CPU_SPEEDO_2_CALIB);
         speedo.socSpeedo = *reinterpret_cast<u16 *>(fusePtr + FUSE_SOC_SPEEDO_0_CALIB);
-        speedo.cpuIDDQ   = *reinterpret_cast<u16 *>(fusePtr + FUSE_CPU_IDDQ_CALIB) * 4;
-        speedo.gpuIDDQ   = *reinterpret_cast<u16 *>(fusePtr + FUSE_GPU_IDDQ_CALIB) * 5;
-        speedo.socIDDQ   = *reinterpret_cast<u16 *>(fusePtr + FUSE_SOC_IDDQ_CALIB) * 4;
-        speedo.waferX    = *reinterpret_cast<s16 *>(fusePtr + FUSE_OPT_X_COORDINATE);
-        speedo.waferY    = *reinterpret_cast<s16 *>(fusePtr + FUSE_OPT_Y_COORDINATE);
-        speedo.waferX    = (speedo.waferX & BIT(8)) ? (speedo.waferX - 512) : speedo.waferX;
+        speedo.cpuIDDQ = *reinterpret_cast<u16 *>(fusePtr + FUSE_CPU_IDDQ_CALIB) * 4;
+        speedo.gpuIDDQ = *reinterpret_cast<u16 *>(fusePtr + FUSE_GPU_IDDQ_CALIB) * 5;
+        speedo.socIDDQ = *reinterpret_cast<u16 *>(fusePtr + FUSE_SOC_IDDQ_CALIB) * 4;
+        speedo.waferX = *reinterpret_cast<s16 *>(fusePtr + FUSE_OPT_X_COORDINATE);
+        speedo.waferY = *reinterpret_cast<s16 *>(fusePtr + FUSE_OPT_Y_COORDINATE);
+        speedo.waferX = (speedo.waferX & BIT(8)) ? (speedo.waferX - 512) : speedo.waferX;
     }
 
-}
+}  // namespace board

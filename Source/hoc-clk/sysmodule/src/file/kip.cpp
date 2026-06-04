@@ -15,17 +15,17 @@
  *
  */
 
-#include "kip.hpp"
-#include "../i2c/i2cDrv.h"
 #include "../board/board.hpp"
-#include "file_utils.hpp"
+#include "../i2c/i2cDrv.h"
 #include "../mgr/clock_manager.hpp"
+#include "file_utils.hpp"
+#include "kip.hpp"
+
 
 namespace kip {
 
     bool kipAvailable = false;
-    void SetKipData()
-    {
+    void SetKipData() {
         // TODO: figure out if this REALLY causes issues (i doubt it)
         // if(board::GetSocType() == HocClkSocType_Mariko) {
         //     if(R_FAILED(I2c_BuckConverter_SetMvOut(&I2c_Mariko_DRAM_VDDQ, config::GetConfigValue(KipConfigValue_marikoEmcVddqVolt) / 1000))) {
@@ -34,7 +34,7 @@ namespace kip {
         //     }
         // }
         CustomizeTable table;
-        FILE* fp = fopen("sdmc:/atmosphere/kips/hoc.kip", "r+b");
+        FILE *fp = fopen("sdmc:/atmosphere/kips/hoc.kip", "r+b");
 
         if (fp == NULL) {
             notification::writeNotification("Horizon OC\nKip opening failed");
@@ -50,7 +50,7 @@ namespace kip {
             return;
         }
 
-        u32 custRev    = cust_get_cust_rev(&table);
+        u32 custRev = cust_get_cust_rev(&table);
         u32 kipVersion = cust_get_kip_version(&table);
         if (custRev < CUST_REV || kipVersion < KIP_VERSION) {
             fclose(fp);
@@ -149,10 +149,11 @@ namespace kip {
         HocClkConfigValueList configValues;
         config::GetConfigValues(&configValues);
 
-        configValues.values[KipCrc32] = (u64)crc32::checksum_file("sdmc:/atmosphere/kips/hoc.kip"); // write checksum
+        configValues.values[KipCrc32] = (u64)crc32::checksum_file("sdmc:/atmosphere/kips/hoc.kip");  // write checksum
 
         if (config::SetConfigValues(&configValues, true)) {
-            fileUtils::LogLine("[kip] KIP data set. CRC32: %ld (Cust Rev %ld)", configValues.values[KipCrc32], configValues.values[KipConfigValue_custRev]);
+            fileUtils::LogLine("[kip] KIP data set. CRC32: %ld (Cust Rev %ld)", configValues.values[KipCrc32],
+                               configValues.values[KipConfigValue_custRev]);
             for (u64 i = KipConfigValue_hpMode; i < HocClkConfigValue_EnumMax; i++) {
                 fileUtils::LogLine("%s: %ld", hocclkFormatConfigValue((HocClkConfigValue)i, false), configValues.values[i]);
             }
@@ -164,9 +165,8 @@ namespace kip {
 
     // I know this is very hacky, but the config system in the sysmodule doesn't really support writing
 
-    void GetKipData()
-    {
-        FILE* fp = fopen("sdmc:/atmosphere/kips/hoc.kip", "rb");
+    void GetKipData() {
+        FILE *fp = fopen("sdmc:/atmosphere/kips/hoc.kip", "rb");
 
         if (fp == NULL) {
             notification::writeNotification("Horizon OC\nKip opening failed");
@@ -192,22 +192,23 @@ namespace kip {
         //     return;
         // }
 
-        if ((u64)crc32::checksum_file("sdmc:/atmosphere/kips/hoc.kip") != config::GetConfigValue(KipCrc32) && !config::GetConfigValue(HocClkConfigValue_IsFirstLoad)) {
+        if ((u64)crc32::checksum_file("sdmc:/atmosphere/kips/hoc.kip") != config::GetConfigValue(KipCrc32) &&
+            !config::GetConfigValue(HocClkConfigValue_IsFirstLoad)) {
             MigrateKipData(cust_get_cust_rev(&table), cust_get_kip_version(&table));
             SetKipData();
             notification::writeNotification("Horizon OC\nKIP has been updated\nPlease reboot your console");
             return;
         }
         if (config::GetConfigValue(HocClkConfigValue_IsFirstLoad) == true) {
-            configValues.values[HocClkConfigValue_IsFirstLoad] = (u64)false;
+            configValues.values[HocClkConfigValue_IsFirstLoad] = (u64) false;
             notification::writeNotification("Horizon OC has been installed");
         }
 
-        configValues.values[KipCrc32] = (u64)crc32::checksum_file("sdmc:/atmosphere/kips/hoc.kip"); // write checksum
+        configValues.values[KipCrc32] = (u64)crc32::checksum_file("sdmc:/atmosphere/kips/hoc.kip");  // write checksum
         // configValues.values[KipConfigValue_mtcConf] = cust_get_mtc_conf(&table);
-        clockManager::gContext.custRev    = cust_get_cust_rev(&table);
+        clockManager::gContext.custRev = cust_get_cust_rev(&table);
 
-        u32 custRev    = cust_get_cust_rev(&table);
+        u32 custRev = cust_get_cust_rev(&table);
         u32 kipVersion = cust_get_kip_version(&table);
         if (custRev < CUST_REV || kipVersion < KIP_VERSION) {
             notification::writeNotification("Horizon OC\nOutdated kip detected!\nPlease update Horizon OC");
@@ -223,7 +224,7 @@ namespace kip {
 
         clockManager::gContext.kipVersion = kipVersion;
         configValues.values[KipConfigValue_custRev] = cust_get_cust_rev(&table);
-        configValues.values[KipConfigValue_KipVersion] = cust_get_kip_version(&table); // Run this after the check so we can do migration process
+        configValues.values[KipConfigValue_KipVersion] = cust_get_kip_version(&table);  // Run this after the check so we can do migration process
         configValues.values[KipConfigValue_hpMode] = cust_get_hp_mode(&table);
 
         configValues.values[KipConfigValue_commonEmcMemVolt] = cust_get_common_emc_volt(&table);
@@ -294,7 +295,8 @@ namespace kip {
 
         if (sizeof(HocClkConfigValueList) <= sizeof(configValues)) {
             if (config::SetConfigValues(&configValues, true)) {
-                fileUtils::LogLine("[kip] KIP loaded. CRC32: %ld (Cust Rev %ld)", configValues.values[KipCrc32], configValues.values[KipConfigValue_custRev]);
+                fileUtils::LogLine("[kip] KIP loaded. CRC32: %ld (Cust Rev %ld)", configValues.values[KipCrc32],
+                                   configValues.values[KipConfigValue_custRev]);
                 for (u64 i = KipConfigValue_hpMode; i < HocClkConfigValue_EnumMax; i++) {
                     fileUtils::LogLine("%s: %ld", hocclkFormatConfigValue((HocClkConfigValue)i, false), configValues.values[i]);
                 }
@@ -312,16 +314,17 @@ namespace kip {
         HocClkConfigValueList configValues;
         config::GetConfigValues(&configValues);
         u32 previousVersion = configValues.values[KipConfigValue_KipVersion];
-        if(previousVersion < 240 && version >= 240) {
+        if (previousVersion < 240 && version >= 240) {
             // <2.4.0 -> 2.4.0 migration
 
             // add marikoGpuBootVolt with default value of 800mV
             configValues.values[KipConfigValue_marikoGpuBootVolt] = 800;
 
-            configValues.values[KipConfigValue_marikoGpuUV] += 2; // Raise UV levels
-            configValues.values[KipConfigValue_commonGpuVoltOffset] = (u32)(-(s64)(configValues.values[KipConfigValue_commonGpuVoltOffset])); // Migrate GPU Volt Offset
+            configValues.values[KipConfigValue_marikoGpuUV] += 2;  // Raise UV levels
+            configValues.values[KipConfigValue_commonGpuVoltOffset] =
+                (u32)(-(s64)(configValues.values[KipConfigValue_commonGpuVoltOffset]));  // Migrate GPU Volt Offset
             // Raise min cpu vmin
-            if(configValues.values[KipConfigValue_eristaCpuVmin] < 750) {
+            if (configValues.values[KipConfigValue_eristaCpuVmin] < 750) {
                 configValues.values[KipConfigValue_eristaCpuVmin] = 750;
             }
 
@@ -332,5 +335,4 @@ namespace kip {
         }
         config::SetConfigValues(&configValues, true);
     }
-}
-
+}  // namespace kip

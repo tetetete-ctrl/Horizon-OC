@@ -13,6 +13,7 @@ UseTab: Never
 IndentAccessModifiers: false
 AccessModifierOffset: 0
 NamespaceIndentation: All
+IndentPPDirectives: BeforeHash
 
 BreakBeforeBraces: Attach
 BraceWrapping:

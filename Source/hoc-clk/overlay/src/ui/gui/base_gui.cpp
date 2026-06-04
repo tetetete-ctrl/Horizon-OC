@@ -12,7 +12,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 /* --------------------------------------------------------------------------
@@ -24,16 +24,18 @@
  * --------------------------------------------------------------------------
  */
 
-#include "base_gui.h"
 #include "../elements/base_frame.h"
+#include "base_gui.h"
 
-void BaseFrame::draw(tsl::gfx::Renderer* renderer) {
+
+void BaseFrame::draw(tsl::gfx::Renderer *renderer) {
     tsl::elm::HeaderOverlayFrame::draw(renderer);
     this->gui->preDraw(renderer);
 }
 
-#include <tesla.hpp>
 #include <math.h>
+#include <tesla.hpp>
+
 
 #define LOGO_Y_REAL 65
 
@@ -53,8 +55,8 @@ void BaseFrame::draw(tsl::gfx::Renderer* renderer) {
 #define VERSION_FONT_SIZE 15
 
 extern "C" {
-    extern const u8 hoc_rgba[];
-    extern const u32 hoc_rgba_size;
+extern const u8 hoc_rgba[];
+extern const u32 hoc_rgba_size;
 }
 
 std::string getVersionString() {
@@ -66,19 +68,13 @@ std::string getVersionString() {
     return std::string(buf);
 }
 
-static constexpr tsl::Color dynamicLogoRGB1 = tsl::Color( 7, 15, 15, 15);
-static constexpr tsl::Color dynamicLogoRGB2 = tsl::Color( 2,  8, 11, 15);
-static constexpr tsl::Color STATIC_TEAL     = tsl::Color( 7, 15, 15, 15);
+static constexpr tsl::Color dynamicLogoRGB1 = tsl::Color(7, 15, 15, 15);
+static constexpr tsl::Color dynamicLogoRGB2 = tsl::Color(2, 8, 11, 15);
+static constexpr tsl::Color STATIC_TEAL = tsl::Color(7, 15, 15, 15);
 const std::string name = " Horizon OC";
 
-static s32 drawDynamicUltraText(
-    tsl::gfx::Renderer* renderer,
-    s32 startX,
-    s32 y,
-    u32 fontSize,
-    const tsl::Color& staticColor,
-    bool useNotificationMethod = false)
-{
+static s32 drawDynamicUltraText(tsl::gfx::Renderer *renderer, s32 startX, s32 y, u32 fontSize, const tsl::Color &staticColor,
+                                bool useNotificationMethod = false) {
     static constexpr double cycleDuration = 1.6;
 
     s32 currentX = startX;
@@ -88,10 +84,10 @@ static s32 drawDynamicUltraText(
 
     const double waveScale = 2.0 * M_PI / cycleDuration;
 
-    for (size_t i = 0; i < name.size(); i++)
-    {
+    for (size_t i = 0; i < name.size(); i++) {
         char letter = name[i];
-        if (letter == '\0') break;
+        if (letter == '\0')
+            break;
 
         double phase = waveScale * (timeNow + i * 0.12);
 
@@ -103,15 +99,9 @@ static s32 drawDynamicUltraText(
         double glow = (cos(phase * 1.5) + 1.0) * 0.5;
         double brightness = 0.75 + glow * 0.25;
 
-        u8 r = static_cast<u8>(
-            ((int)dynamicLogoRGB1.r + ((int)dynamicLogoRGB2.r - (int)dynamicLogoRGB1.r) * blend) * brightness
-        );
-        u8 g = static_cast<u8>(
-            ((int)dynamicLogoRGB1.g + ((int)dynamicLogoRGB2.g - (int)dynamicLogoRGB1.g) * blend) * brightness
-        );
-        u8 b = static_cast<u8>(
-            ((int)dynamicLogoRGB1.b + ((int)dynamicLogoRGB2.b - (int)dynamicLogoRGB1.b) * blend) * brightness
-        );
+        u8 r = static_cast<u8>(((int)dynamicLogoRGB1.r + ((int)dynamicLogoRGB2.r - (int)dynamicLogoRGB1.r) * blend) * brightness);
+        u8 g = static_cast<u8>(((int)dynamicLogoRGB1.g + ((int)dynamicLogoRGB2.g - (int)dynamicLogoRGB1.g) * blend) * brightness);
+        u8 b = static_cast<u8>(((int)dynamicLogoRGB1.b + ((int)dynamicLogoRGB2.b - (int)dynamicLogoRGB1.b) * blend) * brightness);
 
         r = std::clamp<u8>(r, 0, 15);
         g = std::clamp<u8>(g, 0, 15);
@@ -137,17 +127,10 @@ static s32 drawDynamicUltraText(
     return currentX;
 }
 
-void BaseGui::preDraw(tsl::gfx::Renderer* renderer) {
+void BaseGui::preDraw(tsl::gfx::Renderer *renderer) {
     renderer->drawBitmap(LOGO_X, LOGO_Y_REAL - LOGO_LABEL_FONT_SIZE, LOGO_IMG_W, LOGO_IMG_H, hoc_rgba);
 
-    drawDynamicUltraText(
-        renderer,
-        LOGO_TEXT_X,
-        TEXT_Y,
-        LOGO_LABEL_FONT_SIZE,
-        STATIC_TEAL,
-        false
-    );
+    drawDynamicUltraText(renderer, LOGO_TEXT_X, TEXT_Y, LOGO_LABEL_FONT_SIZE, STATIC_TEAL, false);
 
     static const std::string versionStr = "Version " + getVersionString() + "  \"Gaea\"";
     static constexpr tsl::Color versionColor(9, 9, 9, 15);
@@ -166,14 +149,12 @@ void BaseGui::preDraw(tsl::gfx::Renderer* renderer) {
     }
 }
 
-tsl::elm::Element* BaseGui::createUI()
-{
-    BaseFrame* rootFrame = new BaseFrame(this, this->headerHeight());
+tsl::elm::Element *BaseGui::createUI() {
+    BaseFrame *rootFrame = new BaseFrame(this, this->headerHeight());
     rootFrame->setContent(this->baseUI());
     return rootFrame;
 }
 
-void BaseGui::update()
-{
+void BaseGui::update() {
     this->refresh();
 }
