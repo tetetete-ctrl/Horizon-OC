@@ -81,14 +81,7 @@ jobs:
         run: |
           export CCACHE_DIR="$GITHUB_WORKSPACE/.ccache"
           export CCACHE_COMPILERCHECK=content
-          export CCACHE_NOHASHDIR=true
           echo "CCACHE_DIR=$GITHUB_WORKSPACE/.ccache" >> $GITHUB_ENV
-          echo "CCACHE_BASEDIR=$GITHUB_WORKSPACE" >> $GITHUB_ENV
-          echo "CCACHE_COMPILERCHECK=content" >> $GITHUB_ENV
-          echo "CCACHE_NOHASHDIR=true" >> $GITHUB_ENV
-          ccache --set-config=max_size=10G
-          ccache --set-config=compiler_check=content
-          ccache --set-config=hash_dir=false
           ccache -s
           ls -lah "$GITHUB_WORKSPACE/.ccache"
 
